@@ -5,17 +5,33 @@ import requests
 # Set the page layout to 'wide' to reduce margins
 st.set_page_config(layout="wide")
 
-# Custom CSS to remove padding/margin from the left and right
+# Custom CSS to handle responsive design for both mobile and desktop screens
 st.markdown("""
     <style>
-        .css-18e3th9 {  # Streamlit main content area
+        .css-18e3th9 {  /* Streamlit main content area */
             padding-top: 1rem;
             padding-right: 0rem;
             padding-left: 0rem;
             padding-bottom: 1rem;
         }
-        .css-1d391kg {  # Streamlit sidebar area
+        .css-1d391kg {  /* Streamlit sidebar area */
             display: none;
+        }
+        
+        /* Media query for smaller screens (mobile devices) */
+        @media (max-width: 768px) {
+            #tableauViz {
+                width: 100vw;
+                height: 500px;
+            }
+        }
+        
+        /* Media query for larger screens (desktops) */
+        @media (min-width: 769px) {
+            #tableauViz {
+                width: 100vw;
+                height: 850px;
+            }
         }
     </style>
     """, unsafe_allow_html=True)
@@ -45,18 +61,30 @@ def main():
     <script type='text/javascript' src='https://public.tableau.com/javascripts/api/tableau-2.min.js'></script>
     <script type='text/javascript'>
         var divElement = document.getElementById('tableauViz');
-        divElement.style.width = '100%';  // Make sure the width spans the available space
-        divElement.style.height = '850px';  // Set height to suit a desktop layout
 
-        var vizElement = divElement.parentNode;
-        vizElement.style.width = '100%';  // Ensure the parent container also stretches to full width
-        vizElement.style.height = '850px';  // Set the height for better visibility on desktop
+        function adjustVizSize() {{
+            if (window.innerWidth <= 768) {{
+                // Mobile view
+                divElement.style.width = '100vw';
+                divElement.style.height = '500px';
+            }} else {{
+                // Desktop view
+                divElement.style.width = '100vw';
+                divElement.style.height = '850px';
+            }}
+        }}
+
+        // Initial size adjustment
+        adjustVizSize();
+
+        // Adjust size on window resize
+        window.addEventListener('resize', adjustVizSize);
 
         var url = '{viz_url}';
         var options = {{
             hideTabs: false,
             hideToolbar: false,
-            device: "desktop"  // This line ensures the view is for desktop
+            device: window.innerWidth <= 768 ? "phone" : "desktop"
         }};
         var viz = new tableau.Viz(divElement, url, options);
     </script>
